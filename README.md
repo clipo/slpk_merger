@@ -2,6 +2,13 @@
 
 Merge two Esri SLPK (Scene Layer Package) files into one using an I3S-aware Python tool.
 
+## Features
+
+- Supports both Compact (`nodepages/*.json.gz`) and Standard (`nodes/*.json`) I3S formats
+- Remaps node and resource IDs
+- Shows progress bars for large files
+- Outputs a valid `.slpk` ready for ArcGIS
+
 ## Installation
 
 ```bash
@@ -12,14 +19,8 @@ pip install .
 ## Usage
 
 ```bash
-slpk-merge first.slpk second.slpk merged_output.slpk
+slpk-merge input1.slpk input2.slpk output.slpk
 ```
-
-## Features
-
-- Merges compact I3S nodepages
-- Remaps geometry/texture references
-- Progress bars via `tqdm` for long operations
 
 ## Requirements
 

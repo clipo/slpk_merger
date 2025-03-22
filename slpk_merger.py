@@ -16,10 +16,22 @@ def load_gzipped_json(path):
     with gzip.open(path, 'rt', encoding='utf-8') as f:
         return json.load(f)
 
-def extract_nodes_from_nodepage(path):
-    with gzip.open(path, 'rt', encoding='utf-8') as f:
-        data = json.load(f)
-        return data.get("nodes", [])
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def extract_nodes(path):
+    if os.path.exists(os.path.join(path, 'nodepages/0.json.gz')):
+        return load_gzipped_json(os.path.join(path, 'nodepages/0.json.gz')).get('nodes', [])
+    elif os.path.exists(os.path.join(path, 'nodes')):
+        nodes = []
+        for fname in sorted(os.listdir(os.path.join(path, 'nodes'))):
+            if fname.endswith('.json'):
+                node = load_json(os.path.join(path, 'nodes', fname))
+                nodes.append(node)
+        return nodes
+    else:
+        raise FileNotFoundError(f"No nodepages or nodes found in {path}")
 
 def merge_nodepages_fixed(nodepages_a, nodepages_b, offset_index=10000, offset_resource=10000):
     merged = []
@@ -78,8 +90,12 @@ def copy_and_remap_assets_safe(source_dirs, output_dir, resource_offset=10000):
     return resource_map
 
 def update_3dscene_layer_json(input_path, output_path):
-    with gzip.open(input_path, 'rt', encoding='utf-8') as f:
-        scene_layer_data = json.load(f)
+    if input_path.endswith('.gz'):
+        with gzip.open(input_path, 'rt', encoding='utf-8') as f:
+            scene_layer_data = json.load(f)
+    else:
+        with open(input_path, 'r', encoding='utf-8') as f:
+            scene_layer_data = json.load(f)
     scene_layer_data['id'] = str(uuid.uuid4())
     scene_layer_data['version'] = scene_layer_data.get('version', '1.7')
     if 'resource' not in scene_layer_data:
@@ -102,8 +118,8 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     extract_slpk(slpk1, extract1)
     extract_slpk(slpk2, extract2)
 
-    np1 = extract_nodes_from_nodepage(os.path.join(extract1, 'nodepages/0.json.gz'))
-    np2 = extract_nodes_from_nodepage(os.path.join(extract2, 'nodepages/0.json.gz'))
+    np1 = extract_nodes(extract1)
+    np2 = extract_nodes(extract2)
     merged_nodes = merge_nodepages_fixed(np1, np2)
     write_nodepages_chunks(merged_nodes, merged_nodepages_dir)
 
@@ -115,8 +131,12 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     ]
     copy_and_remap_assets_safe(source_assets, merged_assets_dir)
 
+    json_path1 = os.path.join(extract1, '3dSceneLayer.json.gz')
+    if not os.path.exists(json_path1):
+        json_path1 = os.path.join(extract1, '3dSceneLayer.json')
+
     updated_json_path = os.path.join(base_dir, "3dSceneLayer.json")
-    update_3dscene_layer_json(os.path.join(extract1, '3dSceneLayer.json.gz'), updated_json_path)
+    update_3dscene_layer_json(json_path1, updated_json_path)
 
     for sub in ["geometries", "textures"]:
         src_path = os.path.join(merged_assets_dir, sub)
