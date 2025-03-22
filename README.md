@@ -1,13 +1,13 @@
-# SLPK Merger CLI
+# SLPK Folder-Node Merger CLI
 
-Merge two Esri SLPK (Scene Layer Package) files into one using an I3S-aware Python tool.
+This tool merges two Esri SLPK files that use folder-based node structures (e.g., `0/`, `0-0/`).
 
 ## Features
 
-- Supports both Compact (`nodepages/*.json.gz`) and Standard (`nodes/*.json`) I3S formats
-- Remaps node and resource IDs
-- Shows progress bars for large files
-- Outputs a valid `.slpk` ready for ArcGIS
+- Automatically detects folder-based I3S node format
+- Remaps node folders and internal JSON references
+- Merges assets and repackages into a valid `.slpk`
+- Progress bars via `tqdm`
 
 ## Installation
 
@@ -19,7 +19,7 @@ pip install .
 ## Usage
 
 ```bash
-slpk-merge input1.slpk input2.slpk output.slpk
+slpk-merge input1.slpk input2.slpk merged_output.slpk
 ```
 
 ## Requirements
