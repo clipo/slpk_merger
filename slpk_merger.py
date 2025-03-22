@@ -6,6 +6,7 @@ import json
 import uuid
 import math
 import copy
+from tqdm import tqdm
 
 def extract_slpk(slpk_path, extract_to):
     with zipfile.ZipFile(slpk_path, 'r') as zip_ref:
@@ -41,7 +42,7 @@ def merge_nodepages_fixed(nodepages_a, nodepages_b, offset_index=10000, offset_r
 def write_nodepages_chunks(merged_nodes, output_dir, nodes_per_page=1000):
     os.makedirs(output_dir, exist_ok=True)
     total_pages = math.ceil(len(merged_nodes) / nodes_per_page)
-    for page_num in range(total_pages):
+    for page_num in tqdm(range(total_pages), desc='Writing nodepages'):
         start = page_num * nodes_per_page
         end = start + nodes_per_page
         chunk = {"nodes": merged_nodes[start:end]}
@@ -54,7 +55,7 @@ def copy_and_remap_assets_safe(source_dirs, output_dir, resource_offset=10000):
     os.makedirs(output_dir, exist_ok=True)
     resource_map = {}
     for source_path, base_resource_id in source_dirs:
-        for root, _, files in os.walk(source_path):
+        for root, _, files in tqdm(list(os.walk(source_path)), desc=f'Copying assets from {source_path}'):
             for file in files:
                 if file.endswith(('.bin.gz', '.bin', '.jpg', '.dds.gz')):
                     old_path = os.path.join(root, file)
@@ -101,13 +102,11 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     extract_slpk(slpk1, extract1)
     extract_slpk(slpk2, extract2)
 
-    # Merge nodepages
     np1 = extract_nodes_from_nodepage(os.path.join(extract1, 'nodepages/0.json.gz'))
     np2 = extract_nodes_from_nodepage(os.path.join(extract2, 'nodepages/0.json.gz'))
     merged_nodes = merge_nodepages_fixed(np1, np2)
     write_nodepages_chunks(merged_nodes, merged_nodepages_dir)
 
-    # Copy and remap geometries/textures
     source_assets = [
         (os.path.join(extract1, "nodes/0/geometries"), 0),
         (os.path.join(extract2, "nodes/1/geometries"), 0),
@@ -116,17 +115,14 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     ]
     copy_and_remap_assets_safe(source_assets, merged_assets_dir)
 
-    # Update and save 3dSceneLayer.json
     updated_json_path = os.path.join(base_dir, "3dSceneLayer.json")
     update_3dscene_layer_json(os.path.join(extract1, '3dSceneLayer.json.gz'), updated_json_path)
 
-    # Build final directory
     for sub in ["geometries", "textures"]:
         src_path = os.path.join(merged_assets_dir, sub)
         if os.path.exists(src_path):
             shutil.copytree(src_path, os.path.join(base_dir, sub), dirs_exist_ok=True)
     shutil.copytree(merged_nodepages_dir, os.path.join(base_dir, "nodepages"), dirs_exist_ok=True)
 
-    # Package into .slpk
     shutil.make_archive(base_dir, 'zip', base_dir)
     os.rename(f"{base_dir}.zip", output_slpk)
