@@ -78,7 +78,18 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     input_scene_path = os.path.join(extract1, '3dSceneLayer.json.gz')
     update_3dscene_layer_json(input_scene_path, scene_json_path)
 
-    # Repackage to .slpk
-    shutil.copytree(merged_nodes_dir, os.path.join(base_dir), dirs_exist_ok=True)
+    # Copy node folders to root
+    for folder in os.listdir(merged_nodes_dir):
+        src = os.path.join(merged_nodes_dir, folder)
+        dst = os.path.join(base_dir, folder)
+        if os.path.isdir(src):
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+
+    # Determine final output path
+    slpk_path = output_slpk if output_slpk.endswith('.slpk') else output_slpk + '.slpk'
+    if os.path.exists(slpk_path):
+        os.remove(slpk_path)
+
+    # Create and rename archive
     shutil.make_archive(base_dir, 'zip', base_dir)
-    os.rename(f"{base_dir}.zip", output_slpk)
+    os.replace(f"{base_dir}.zip", slpk_path)
