@@ -1,14 +1,15 @@
-# SLPK Compact I3S Merger CLI
+# SLPK Dual-Format Merger CLI
 
-Merges two Esri SLPK files using the Compact I3S format (e.g., Integrated Mesh layers).
+Merges two Esri SLPK files that use either:
+- Compact I3S (`nodepages/*.json.gz`)
+- Standard I3S (`nodes/*.json`)
 
 ## Features
 
-- Supports `nodepages/` and `nodes/` from Compact I3S
-- Automatically remaps node indices and file references
-- Merges `3dSceneLayer.json.gz` and `metadata.json`
-- Generates required `index.json` for ArcGIS compatibility
-- Shows progress bars using `tqdm`
+- Auto-detects Compact or Standard I3S format
+- Merges node trees, geometry, metadata
+- Handles `3dSceneLayer.json.gz`, `metadata.json`, and `index.json`
+- Progress bars via `tqdm`
 
 ## Installation
 
@@ -20,9 +21,10 @@ pip install .
 ## Usage
 
 ```bash
-slpk-merge slpk1.slpk slpk2.slpk merged_output.slpk
+slpk-merge input1.slpk input2.slpk merged_output.slpk
 ```
 
 ## Requirements
 
 - Python 3.7+
+- tqdm
