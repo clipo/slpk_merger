@@ -1,0 +1,8 @@
+{
+  "version": "1.7",
+  "layers": [
+    {
+      "href": "3dSceneLayer.json.gz"
+    }
+  ]
+}
