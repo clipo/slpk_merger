@@ -38,7 +38,7 @@ def copy_node_folders(src_nodes, dest_nodes):
         except Exception as e:
             print(f"Skipping {node_name}: {e}")
 
-def merge_slpks(slpk1, slpk2, output_slpk):
+def merge_slpks(slpk1, slpk2, output_slpk, force=False):
     temp_dir = os.path.splitext(output_slpk)[0] + '_work'
     os.makedirs(temp_dir, exist_ok=True)
 
@@ -57,8 +57,12 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     v1 = load_version(extract1)
     v2 = load_version(extract2)
     if v1 != v2:
-        raise ValueError(f"SLPK version mismatch: {os.path.basename(slpk1)} is v{v1}, {os.path.basename(slpk2)} is v{v2}.\n"
-                         "Please re-export both using the same I3S version from ArcGIS Pro.")
+        if force:
+            print(f"[WARNING] SLPK version mismatch: {os.path.basename(slpk1)} is v{v1}, {os.path.basename(slpk2)} is v{v2}.")
+            print("Proceeding with merge due to --force flag.")
+        else:
+            raise ValueError(f"SLPK version mismatch: {os.path.basename(slpk1)} is v{v1}, {os.path.basename(slpk2)} is v{v2}.\n"
+                             "Please re-export both using the same I3S version from ArcGIS Pro.")
 
     if not (is_compact_folder_format(extract1) and is_compact_folder_format(extract2)):
         raise ValueError("One or both SLPKs do not use folder-based Compact I3S format (with 3dNodeIndexDocument.json.gz).")
