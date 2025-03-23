@@ -56,7 +56,7 @@ def update_3dscene_layer_json(input_path, output_path):
     if 'resource' not in scene_layer_data:
         scene_layer_data['resource'] = {}
     scene_layer_data['resource']['rootNode'] = "0"
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with gzip.open(output_path.replace(".json", ".json.gz"), 'wt', encoding='utf-8') as f:
         json.dump(scene_layer_data, f, indent=2)
 
 def merge_slpks(slpk1, slpk2, output_slpk):
@@ -74,9 +74,13 @@ def merge_slpks(slpk1, slpk2, output_slpk):
     remap_folder_node_structure(extract2, merged_nodes_dir, start_id=10000)
 
     # Copy and update 3dSceneLayer.json
-    scene_json_path = os.path.join(base_dir, '3dSceneLayer.json')
+    scene_json_path = os.path.join(base_dir, '3dSceneLayer.json')  # for compatibility, gz version is created
     input_scene_path = os.path.join(extract1, '3dSceneLayer.json.gz')
     update_3dscene_layer_json(input_scene_path, scene_json_path)
+
+    # Remove uncompressed JSON if present
+    if os.path.exists(scene_json_path):
+        os.remove(scene_json_path)
 
     # Copy node folders to root
     for folder in os.listdir(merged_nodes_dir):
