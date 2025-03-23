@@ -21,7 +21,7 @@ def write_gzipped_json(data, path):
 def collect_node_folders(base_dir):
     return sorted([
         f for f in os.listdir(base_dir)
-        if os.path.isdir(os.path.join(base_dir, f)) and '-' in f or f.isdigit()
+        if os.path.isdir(os.path.join(base_dir, f)) and ('-' in f or f.isdigit())
     ])
 
 def remap_folder_node_structure(source_dir, dest_dir, start_id):
@@ -34,7 +34,7 @@ def remap_folder_node_structure(source_dir, dest_dir, start_id):
         new_folder = f"{current_id}"
         dest_path = os.path.join(dest_dir, new_folder)
         shutil.copytree(src_path, dest_path)
-        
+
         # Update 3dNodeIndexDocument.json.gz
         index_doc_path = os.path.join(dest_path, "3dNodeIndexDocument.json.gz")
         if os.path.exists(index_doc_path):
@@ -53,6 +53,8 @@ def update_3dscene_layer_json(input_path, output_path):
     with gzip.open(input_path, 'rt', encoding='utf-8') as f:
         scene_layer_data = json.load(f)
     scene_layer_data['id'] = str(uuid.uuid4())
+    if 'resource' not in scene_layer_data:
+        scene_layer_data['resource'] = {}
     scene_layer_data['resource']['rootNode'] = "0"
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(scene_layer_data, f, indent=2)
