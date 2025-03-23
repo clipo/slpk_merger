@@ -1,13 +1,14 @@
-# SLPK Folder-Node Merger CLI
+# SLPK Compact I3S Merger CLI
 
-This tool merges two Esri SLPK files that use folder-based node structures (e.g., `0/`, `0-0/`).
+Merges two Esri SLPK files using the Compact I3S format (e.g., Integrated Mesh layers).
 
 ## Features
 
-- Automatically detects folder-based I3S node format
-- Remaps node folders and internal JSON references
-- Merges assets and repackages into a valid `.slpk`
-- Progress bars via `tqdm`
+- Supports `nodepages/` and `nodes/` from Compact I3S
+- Automatically remaps node indices and file references
+- Merges `3dSceneLayer.json.gz` and `metadata.json`
+- Generates required `index.json` for ArcGIS compatibility
+- Shows progress bars using `tqdm`
 
 ## Installation
 
@@ -19,10 +20,9 @@ pip install .
 ## Usage
 
 ```bash
-slpk-merge input1.slpk input2.slpk merged_output.slpk
+slpk-merge slpk1.slpk slpk2.slpk merged_output.slpk
 ```
 
 ## Requirements
 
 - Python 3.7+
-- tqdm

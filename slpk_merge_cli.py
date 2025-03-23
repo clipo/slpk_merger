@@ -2,10 +2,10 @@ import argparse
 from slpk_merger import merge_slpks
 
 def main():
-    parser = argparse.ArgumentParser(description='Merge two folder-based SLPK files into one.')
-    parser.add_argument('slpk1', help='Path to the first SLPK file')
-    parser.add_argument('slpk2', help='Path to the second SLPK file')
-    parser.add_argument('output', help='Path for the output merged SLPK file')
+    parser = argparse.ArgumentParser(description='Merge two Compact I3S SLPKs (e.g., Integrated Mesh layers).')
+    parser.add_argument('slpk1', help='Path to the first SLPK')
+    parser.add_argument('slpk2', help='Path to the second SLPK')
+    parser.add_argument('output', help='Path to the output merged SLPK')
     args = parser.parse_args()
     merge_slpks(args.slpk1, args.slpk2, args.output)
 

@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name='slpk-merger-folder',
-    version='0.3',
+    name='slpk-merger-compact',
+    version='0.4',
     py_modules=['slpk_merger'],
     entry_points={
         'console_scripts': [
