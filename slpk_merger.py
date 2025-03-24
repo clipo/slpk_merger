@@ -39,6 +39,9 @@ def copy_node_folders(src_nodes, dest_nodes):
             print(f"Skipping {node_name}: {e}")
 
 def merge_slpks(slpk1, slpk2, output_slpk, force=False):
+    if not output_slpk.lower().endswith('.slpk'):
+        output_slpk += '.slpk'
+
     temp_dir = os.path.splitext(output_slpk)[0] + '_work'
     os.makedirs(temp_dir, exist_ok=True)
 
@@ -78,9 +81,8 @@ def merge_slpks(slpk1, slpk2, output_slpk, force=False):
     # Copy scene layer JSON
     shutil.copy2(os.path.join(extract1, "3dSceneLayer.json.gz"), os.path.join(final_dir, "3dSceneLayer.json.gz"))
 
-    # Package
-    if os.path.exists(output_slpk):
-        os.remove(output_slpk)
-    shutil.make_archive(output_slpk.replace(".slpk", ""), 'zip', final_dir)
-    os.rename(output_slpk.replace(".slpk", ".zip"), output_slpk)
+    # Package to .slpk
+    zip_base = os.path.splitext(output_slpk)[0]
+    shutil.make_archive(zip_base, 'zip', final_dir)
+    os.rename(zip_base + '.zip', output_slpk)
     print("[SUCCESS] Merged SLPK created at:", output_slpk)
